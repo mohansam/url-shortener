@@ -1,0 +1,24 @@
+{
+  "name": "src",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.54.0",
+    "@middy/core": "^2.5.7",
+    "@middy/http-error-handler": "^2.5.7",
+    "@types/valid-url": "^1.0.3",
+    "http-errors": "^2.0.0",
+    "nanoid": "^3.3.1",
+    "valid-url": "^1.0.9"
+  },
+  "devDependencies": {
+    "@types/aws-lambda": "^8.10.93",
+    "@types/http-errors": "^1.8.2"
+  }
+}

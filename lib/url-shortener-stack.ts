@@ -22,32 +22,53 @@ export class UrlShortenerStack extends Stack {
       layerVersionName: 'urlShortenerLayer_Cdk',
       removalPolicy:cdk.RemovalPolicy.DESTROY
     })
-    const urlShortenerLambdaFun = new lambda.Function(this, 'urlShortenerLambdaFun', {
+    const urlShortenerLambdaGenerateUrlFun = new lambda.Function(this, 'urlShortenerLambdaGenerateUrlFun', {
       runtime: lambda.Runtime.NODEJS_14_X,
       architecture: lambda.Architecture.ARM_64,
-      code: lambda.Code.fromAsset('./lambdaFn/dest'),
+      code: lambda.Code.fromAsset('./lambdaFn/dest/generateUrl'),
       handler: 'index.handler',
       environment: {
         TABLE_NAME: urlShortenerTable.tableName,
         TABLE_Region:'ap-south-1',
         SHORT_URL_SIZE: '8',
-        SHORT_URL:'https://chotta.in'
+        SHORT_URL_ROOT:'https://chotta.in'
       },
-      functionName: 'urlShortenerLambdaFun_Cdk',
+      functionName: 'urlShortenerLambdaGenerateUrlFun_Cdk',
       layers: [urlShortenerLayer],
       description:'use to parse inbound request'
     });
-    urlShortenerTable.grantReadWriteData(urlShortenerLambdaFun);
-
-    const urlShortenerApiGateWay = new apigateway.RestApi(this, 'urlShortenerApiGateWay', {
+    urlShortenerTable.grantReadWriteData(urlShortenerLambdaGenerateUrlFun);
+    
+    /*-------------------------------*/
+    const urlShortenerLambdaRedirectUrlFun = new lambda.Function(this, 'urlShortenerLambdaRedirectUrlFun', {
+      runtime: lambda.Runtime.NODEJS_14_X,
+      architecture: lambda.Architecture.ARM_64,
+      code: lambda.Code.fromAsset('./lambdaFn/dest/redirectUrl'),
+      handler: 'index.handler',
+      environment: {
+        TABLE_NAME: urlShortenerTable.tableName,
+        TABLE_Region:'ap-south-1',
+        SHORT_URL_ROOT:'https://chotta.in'
+      },
+      functionName: 'urlShortenerLambdaRedirectUrlFun',
+      layers: [urlShortenerLayer],
+      description:'use to parse redirect request'
+    });
+    urlShortenerTable.grantReadWriteData(urlShortenerLambdaRedirectUrlFun);    
+    /*----------------------------------*/
+    
+   const urlShortenerApiGateWay = new apigateway.RestApi(this, 'urlShortenerApiGateWay', {
       restApiName: 'urlShortenerApiGateWay_Cdk'
     });    
     const urlShortenerApiGateWayResource = urlShortenerApiGateWay.root.addResource('api');
     urlShortenerApiGateWayResource
       .addResource('v1')
       .addResource('generate')
-      .addMethod('get', new apigateway.LambdaIntegration(urlShortenerLambdaFun));
-       
+      .addMethod('get', new apigateway.LambdaIntegration(urlShortenerLambdaGenerateUrlFun));
+    urlShortenerApiGateWay
+      .root
+      .addResource('{shortUrl}')
+      .addMethod('get', new apigateway.LambdaIntegration(urlShortenerLambdaRedirectUrlFun));
     
   }
 }
