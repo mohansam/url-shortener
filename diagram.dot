@@ -1,0 +1,128 @@
+digraph "Diagram" {
+  splines = "ortho";
+  pad = "1.0";
+  nodesep = "0.60";
+  ranksep = "0.75";
+  fontname = "Sans-Serif";
+  fontsize = "15";
+  dpi = "200";
+  rankdir = "BT";
+  compound = "true";
+  fontcolor = "#222222";
+  edge [
+    color = "#D5871488",
+    penwidth = 2,
+    arrowhead = "dot",
+    arrowtail = "dot",
+  ];
+  node [
+    shape = "box",
+    style = "rounded",
+    fixedsize = true,
+    width = 1.7,
+    height = 1.7,
+    labelloc = "c",
+    imagescale = true,
+    fontname = "Sans-Serif",
+    fontsize = 8,
+    margin = 8,
+  ];
+  subgraph "UrlShortenerStack" {
+    subgraph "cluster-SubGraph.UrlShortenerStack" {
+      graph [
+        label = "UrlShortenerStack",
+        labelloc = "b",
+        labeljust = "l",
+        margin = "10",
+        fontsize = "16",
+        penwidth = "2",
+        pencolor = "#888888",
+        style = "filled,rounded",
+        fillcolor = "#e4e4e4",
+      ];
+      "UrlShortenerStack/urlShortenerTable" [
+        label = " urlShortenerTable",
+        fontsize = 12,
+        image = "D:\Project\AWS Lambda\url-shortener\node_modules\cdk-dia\icons\aws\Service\Arch_Database\64\Arch_Amazon-DynamoDB_64@5x.png",
+        imagescale = "true",
+        imagepos = "tc",
+        penwidth = "0",
+        shape = "node",
+        fixedsize = "true",
+        labelloc = "b",
+        width = 1.2,
+        height = 1.466,
+      ];
+      "UrlShortenerStack/urlShortenerLayer" [
+        label = " urlShortenerLayer",
+        fontsize = 12,
+        image = "D:\Project\AWS Lambda\url-shortener\node_modules\cdk-dia\icons\aws\Service\Arch_Compute\64\Arch_AWS-Lambda_64@5x.png",
+        imagescale = "true",
+        imagepos = "tc",
+        penwidth = "0",
+        shape = "node",
+        fixedsize = "true",
+        labelloc = "b",
+        width = 2,
+        height = 2.266,
+      ];
+      "UrlShortenerStack/urlShortenerLambdaGenerateUrlFun" [
+        label = "\nurlShortenerLambdaGen",
+        fontsize = 12,
+        image = "D:\Project\AWS Lambda\url-shortener\node_modules\cdk-dia\icons\aws\Service\Arch_Compute\64\Arch_AWS-Lambda_64@5x.png",
+        imagescale = "true",
+        imagepos = "tc",
+        penwidth = "0",
+        shape = "node",
+        fixedsize = "true",
+        labelloc = "b",
+        width = 2,
+        height = 2.4819999999999998,
+      ];
+      "UrlShortenerStack/urlShortenerLambdaRedirectUrlFun" [
+        label = "\nurlShortenerLambdaRed",
+        fontsize = 12,
+        image = "D:\Project\AWS Lambda\url-shortener\node_modules\cdk-dia\icons\aws\Service\Arch_Compute\64\Arch_AWS-Lambda_64@5x.png",
+        imagescale = "true",
+        imagepos = "tc",
+        penwidth = "0",
+        shape = "node",
+        fixedsize = "true",
+        labelloc = "b",
+        width = 2,
+        height = 2.4819999999999998,
+      ];
+      "UrlShortenerStack/urlShortenerApiGateWay" [
+        label = "\nurlShortenerApiGateWa",
+        fontsize = 12,
+        image = "D:\Project\AWS Lambda\url-shortener\node_modules\cdk-dia\icons\aws\Service\Arch_Networking-Content\64\Arch_Amazon-API-Gateway_64@5x.png",
+        imagescale = "true",
+        imagepos = "tc",
+        penwidth = "0",
+        shape = "node",
+        fixedsize = "true",
+        labelloc = "b",
+        width = 1.2,
+        height = 1.682,
+      ];
+    }
+  }
+  "UrlShortenerStack/urlShortenerLambdaGenerateUrlFun" -> "UrlShortenerStack/urlShortenerTable" [
+    dir = "both",
+  ];
+  "UrlShortenerStack/urlShortenerLambdaGenerateUrlFun" -> "UrlShortenerStack/urlShortenerLayer" [
+    dir = "both",
+  ];
+  "UrlShortenerStack/urlShortenerLambdaRedirectUrlFun" -> "UrlShortenerStack/urlShortenerTable" [
+    dir = "both",
+  ];
+  "UrlShortenerStack/urlShortenerLambdaRedirectUrlFun" -> "UrlShortenerStack/urlShortenerLayer" [
+    dir = "both",
+  ];
+  "UrlShortenerStack/urlShortenerApiGateWay" -> "UrlShortenerStack/urlShortenerLambdaGenerateUrlFun" [
+    dir = "both",
+  ];
+  "UrlShortenerStack/urlShortenerApiGateWay" -> "UrlShortenerStack/urlShortenerLambdaRedirectUrlFun" [
+    dir = "both",
+  ];
+}

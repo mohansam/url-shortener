@@ -11,6 +11,7 @@ const ddbClient = new client_dynamodb_1.DynamoDB({
 const handler = async (event) => {
     var _a, _b, _c;
     try {
+        const res = { statusCode: 302, headers: { location: '' } };
         const shortUrlId = (_a = event.pathParameters) === null || _a === void 0 ? void 0 : _a.shortUrl;
         if (!shortUrlId) {
             let errorProps = {
@@ -26,15 +27,8 @@ const handler = async (event) => {
             }
         });
         const data = await ddbClient.send(command);
-        if (!((_b = data.Item) === null || _b === void 0 ? void 0 : _b.userUrl)) {
-            let errorProps = {
-                StatusCode: 404,
-                body: JSON.stringify({ 'error': 'short url not found' }),
-            };
-            throw (0, errorHandler_1.generateError)(errorProps, errorHandler_1.ErrorType.Error_In_400_Range);
-        }
-        ;
-        return { statusCode: 302, headers: { location: (_c = data.Item) === null || _c === void 0 ? void 0 : _c.userUrl.S } };
+        res.headers.location = ((_b = data.Item) === null || _b === void 0 ? void 0 : _b.userUrl) ? (_c = data.Item) === null || _c === void 0 ? void 0 : _c.userUrl.S : 'error/404.html';
+        return res;
     }
     catch (err) {
         const res = (0, errorHandler_1.handleError)(err);

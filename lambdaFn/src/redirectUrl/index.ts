@@ -10,6 +10,7 @@ const ddbClient = new DynamoDB({
 
 export const handler = async (event: any) => {
     try {
+        const res = {statusCode: 302, headers:{location:''}};
      const shortUrlId = event.pathParameters?.shortUrl;
         if (!shortUrlId) {
             let errorProps = {                
@@ -24,15 +25,9 @@ export const handler = async (event: any) => {
         Key: {
             urlShortId: { "S": shortUrlId }}
      });
-     const data = await ddbClient.send(command);
-    if (!data.Item?.userUrl) {
-        let errorProps = {
-            StatusCode: 404,
-            body: JSON.stringify({ 'error': 'short url not found' }),
-        };       
-        throw generateError(errorProps, ErrorType.Error_In_400_Range);
-        };
-    return {statusCode:302,headers:{location:data.Item?.userUrl.S}};         
+        const data = await ddbClient.send(command);       
+        res.headers.location = data.Item?.userUrl ? <string>data.Item?.userUrl.S : 'error/404.html';   
+        return res;         
     } catch (err:any) {
         const res = handleError(err);
         return res;

@@ -4,6 +4,10 @@ import * as ddb from 'aws-cdk-lib/aws-dynamodb';
 import * as lambda from 'aws-cdk-lib/aws-lambda';
 import * as apigateway from 'aws-cdk-lib/aws-apigateway';
 import * as cdk from 'aws-cdk-lib';
+import * as s3 from 'aws-cdk-lib/aws-s3'
+
+
+
 export class UrlShortenerStack extends Stack {
   constructor(scope: Construct, id: string, props?: StackProps) {
     super(scope, id, props);
@@ -56,19 +60,52 @@ export class UrlShortenerStack extends Stack {
     });
     urlShortenerTable.grantReadWriteData(urlShortenerLambdaRedirectUrlFun);    
     /*----------------------------------*/
-    
+  
    const urlShortenerApiGateWay = new apigateway.RestApi(this, 'urlShortenerApiGateWay', {
       restApiName: 'urlShortenerApiGateWay_Cdk'
-    });    
+   });
+      const urlJSonSchema: apigateway.JsonSchema = {
+        title: 'urlValidatorSchema',
+       // pattern: "^(?:http(s)?:\/\/)?[\w.-]+(?:\.[\w\.-]+)+[\w\-\._~:/?#[\]@!\$&'\(\)\*\+,;=.]+$g",
+        schema: apigateway.JsonSchemaVersion.DRAFT4,
+        required: ['url'],
+        properties: {
+        url: {           
+            type:apigateway.JsonSchemaType.STRING ,                                
+        }
+    }
+        
+    }
+    const urlValidatorModel = new apigateway.Model(this, 'urlValidatorModel', {
+      restApi: urlShortenerApiGateWay,
+      modelName: 'urlValidatorModelCdk',
+      schema: urlJSonSchema,
+      description: 'input url validator'
+    });
+    const urlRequestValidator = new apigateway.RequestValidator(this, 'urlRequestValidator', {
+      restApi: urlShortenerApiGateWay,
+      validateRequestBody: true,
+      requestValidatorName: 'urlRequestValidator_Cdk'
+    });
+
     const urlShortenerApiGateWayResource = urlShortenerApiGateWay.root.addResource('api');
     urlShortenerApiGateWayResource
       .addResource('v1')
       .addResource('generate')
-      .addMethod('get', new apigateway.LambdaIntegration(urlShortenerLambdaGenerateUrlFun));
+      .addMethod('post', new apigateway.LambdaIntegration(urlShortenerLambdaGenerateUrlFun), {
+        requestValidator: urlRequestValidator,
+        requestModels: {
+            'application/json':urlValidatorModel
+        },
+        
+      });   
+    
     urlShortenerApiGateWay
       .root
       .addResource('{shortUrl}')
       .addMethod('get', new apigateway.LambdaIntegration(urlShortenerLambdaRedirectUrlFun));
-    
+    /*---------------------*/
+
+  
   }
 }

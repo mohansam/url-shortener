@@ -15,15 +15,8 @@ const ddbClient = new DynamoDB({
     
 })
 export const handler = async (event: any) => {   
-    try {
-        const userUrl = event?.queryStringParameters?.url;
-        if (!isWebUri(userUrl)) {
-            let errorProps = {                
-                StatusCode: 400,
-                body: JSON.stringify({ 'error': 'not a valid url ' })
-            };
-            throw generateError(errorProps,ErrorType.Error_In_400_Range);           
-        }          
+    try {       
+        const userUrl = inputValidator(event.body);               
         const shortUrlId: string = nanoid(shortUrlIdSize);
         const command = new UpdateItemCommand({
                 TableName: Table_Name,
@@ -49,6 +42,19 @@ export const handler = async (event: any) => {
         } catch(err:any) {
          const res = handleError(err);
         return res;
-    } 
+    }
    
 };
+
+const inputValidator = (inputBody: string) => {
+    let body = JSON.parse(inputBody);
+    let userUrl: string = body.url;
+     if (!isWebUri(userUrl)) {
+            let errorProps = {                
+                StatusCode: 400,
+                body: JSON.stringify({ 'error': 'not a valid url ' })
+            };
+            throw generateError(errorProps,ErrorType.Error_In_400_Range);           
+    }
+    return userUrl;
+}

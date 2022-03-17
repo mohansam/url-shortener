@@ -15,16 +15,8 @@ const ddbClient = new client_dynamodb_1.DynamoDB({
     region: Table_Region,
 });
 const handler = async (event) => {
-    var _a;
     try {
-        const userUrl = (_a = event === null || event === void 0 ? void 0 : event.queryStringParameters) === null || _a === void 0 ? void 0 : _a.url;
-        if (!(0, valid_url_1.isWebUri)(userUrl)) {
-            let errorProps = {
-                StatusCode: 400,
-                body: JSON.stringify({ 'error': 'not a valid url ' })
-            };
-            throw (0, errorHandler_1.generateError)(errorProps);
-        }
+        const userUrl = inputValidator(event.body);
         const shortUrlId = (0, nanoid_1.nanoid)(shortUrlIdSize);
         const command = new client_dynamodb_1.UpdateItemCommand({
             TableName: Table_Name,
@@ -41,9 +33,9 @@ const handler = async (event) => {
         if (data.$metadata.httpStatusCode != 200) {
             let errorProps = {
                 StatusCode: 400,
-                body: JSON.stringify({ 'error': 'not a valid url ' })
+                body: JSON.stringify({ 'error': 'something broke' })
             };
-            throw (0, errorHandler_1.generateError)(errorProps);
+            throw (0, errorHandler_1.generateError)(errorProps, errorHandler_1.ErrorType.Error_In_500_Range);
         }
         return { statusCode: 200, body: JSON.stringify({ 'shortUrl': `${shortUrlRoot}/${shortUrlId}` }) };
     }
@@ -53,3 +45,15 @@ const handler = async (event) => {
     }
 };
 exports.handler = handler;
+const inputValidator = (inputBody) => {
+    let body = JSON.parse(inputBody);
+    let userUrl = body.url;
+    if (!(0, valid_url_1.isWebUri)(userUrl)) {
+        let errorProps = {
+            StatusCode: 400,
+            body: JSON.stringify({ 'error': 'not a valid url ' })
+        };
+        throw (0, errorHandler_1.generateError)(errorProps, errorHandler_1.ErrorType.Error_In_400_Range);
+    }
+    return userUrl;
+};
