@@ -14,11 +14,8 @@ const handler = async (event) => {
         const res = { statusCode: 302, headers: { location: '' } };
         const shortUrlId = (_a = event.pathParameters) === null || _a === void 0 ? void 0 : _a.shortUrl;
         if (!shortUrlId) {
-            let errorProps = {
-                StatusCode: 400,
-                body: JSON.stringify({ 'error': 'short url not mentioned' }),
-            };
-            throw (0, errorHandler_1.generateError)(errorProps, errorHandler_1.ErrorType.Error_In_400_Range);
+            res.headers.location = 'home/index.html';
+            return res;
         }
         const command = new client_dynamodb_1.GetItemCommand({
             TableName: Table_Name,

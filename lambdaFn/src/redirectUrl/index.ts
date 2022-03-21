@@ -13,11 +13,8 @@ export const handler = async (event: any) => {
         const res = {statusCode: 302, headers:{location:''}};
      const shortUrlId = event.pathParameters?.shortUrl;
         if (!shortUrlId) {
-            let errorProps = {                
-                StatusCode: 400,
-                body: JSON.stringify({ 'error': 'short url not mentioned' }),
-            };
-            throw generateError(errorProps, ErrorType.Error_In_400_Range);
+            res.headers.location = 'home/index.html';
+            return res;       
         }
 
      const command = new GetItemCommand({
